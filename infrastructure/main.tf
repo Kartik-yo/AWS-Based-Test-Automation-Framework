@@ -1,10 +1,10 @@
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 # S3 Bucket for storing test reports
 resource "aws_s3_bucket" "test_reports" {
-  bucket = "aws-test-automation-reports"
+  bucket = var.s3_bucket_name
   acl    = "private"
 }
 
@@ -57,4 +57,28 @@ resource "aws_lambda_function" "test_runner" {
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.test_runner.function_name}"
   retention_in_days = 7
+}
+
+# Variables
+variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "s3_bucket_name" {
+  description = "S3 bucket name for storing test reports"
+  type        = string
+  default     = "aws-test-automation-reports"
+}
+
+# Outputs
+output "s3_bucket_name" {
+  description = "Name of the S3 bucket created"
+  value       = aws_s3_bucket.test_reports.bucket
+}
+
+output "lambda_function_arn" {
+  description = "ARN of the Lambda function"
+  value       = aws_lambda_function.test_runner.arn
 }
