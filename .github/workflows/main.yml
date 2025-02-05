@@ -1,0 +1,30 @@
+name: AWS Test Automation
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch : {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install -r lambda/requirements.txt
+
+      - name: Run Tests
+        run: pytest tests/
+
+      - name: Deploy Lambda Function
+        run: |
+          zip -r lambda/lambda_test_runner.zip lambda/lambda_function.py
+          aws lambda update-function-code --function-name AWS_Test_Automation --zip-file fileb://lambda/lambda_test_runner.zip
